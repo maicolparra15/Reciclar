@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dear System — Gestión Sostenible</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {--green-dark:#1b5e20;--green-light:#a5d6a7;--blue:#1565c0;--white:#fff;--gray:#f5f7f5;--text:#1c1c1c;}
+body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(160deg,#e9f7ec 0%,#fafffa 100%);display:flex;flex-direction:column;min-height:100vh;}
+.topbar{width:100%;background:var(--green-dark);color:white;display:flex;justify-content:center;align-items:center;gap:30px;padding:12px;position:sticky;top:0;z-index:9999;}
+.topbar button{background:none;border:2px solid transparent;color:white;padding:8px 16px;font-weight:600;border-radius:8px;cursor:pointer;font-size:15px;transition:.3s;}
+.topbar button:hover,.topbar button.active{border-color:var(--green-light);background:rgba(255,255,255,.15);}
+.container{display:flex;flex:1;min-height:calc(100vh - 60px);}
+.sidebar{width:250px;background:var(--green-dark);color:white;padding:20px;}
+.sidebar h1{font-size:26px;text-align:center;margin-bottom:10px;font-weight:700;}
+.sidebar h2{text-align:center;font-size:14px;font-weight:400;margin-bottom:20px;}
+.sidebar button{display:block;width:100%;background:none;border:none;color:white;text-align:left;padding:10px 15px;border-radius:6px;cursor:pointer;transition:.3s;}
+.sidebar button:hover,.sidebar button.active{background:rgba(255,255,255,.25);}
+.main-content{flex:1;padding:20px;overflow-y:auto;}
+header{display:flex;justify-content:space-between;align-items:center;}
+header h2{color:var(--green-dark);font-size:24px;font-weight:700;}
+.btn{background:var(--green-dark);color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600;}
+.btn:hover{background:#256d27;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:20px;}
+.card{background:white;border-radius:12px;box-shadow:0 3px 6px rgba(0,0,0,.08);padding:16px;cursor:pointer;transition:.2s;}
+.card:hover{transform:translateY(-3px);}
+.card .big{font-size:26px;color:var(--blue);font-weight:700;}
+#map{width:100%;height:420px;border-radius:12px;margin-top:12px;}
+section{display:none;}section.active{display:block;}
+footer{text-align:center;padding:10px;color:#555;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+<button class="active" data-section="inicio">Inicio</button>
+<button data-section="quees">¿Qué es?</button>
+<button data-section="trl5">TRL5</button>
+</div>
+<div class="container">
+<aside class="sidebar">
+<h1>Dear System</h1>
+<h2>Gestión sostenible de residuos electrónicos<br>Rincón Hondo, Cesar</h2>
+<button class="active" data-section="estadisticas">📊 Estadísticas</button>
+<button data-section="mapa">🗺️ Mapa</button>
+<button data-section="recoleccion">♻️ Recolección responsable</button>
+<button data-section="reciclaje">🔄 Reciclaje y reutilización</button>
+<button data-section="educacion">🌿 Educación ambiental</button>
+<button data-section="impacto">🌎 Impacto ambiental</button>
+</aside>
+<main class="main-content">
+<header>
+<h2 id="sectionTitle">📊 Estadísticas Generales</h2>
+<button id="registerBtn" class="btn">Registrar residuo</button>
+</header>
+<section id="estadisticas" class="active">
+<div class="cards">
+<div class="card" id="cardEquipos"><h3>Equipos recolectados</h3><p id="equiposCount" class="big">124</p></div>
+<div class="card" id="cardReutilizados"><h3>Reutilizados</h3><p class="big">87</p></div>
+<div class="card" id="cardKg"><h3>Kg reciclados</h3><p class="big">312</p></div>
+<div class="card" id="cardCO2"><h3>Impacto CO₂ eq.</h3><p class="big">0.9 t</p></div>
+</div>
+<canvas id="statsChart" style="margin-top:25px;"></canvas>
+</section>
+<section id="mapa"><h3>🗺️ Puntos de recolección</h3><div id="map"></div></section>
+<section id="inicio"><h3>Inicio</h3><p>Bienvenido a <strong>Dear System</strong>, la plataforma que impulsa la gestión sostenible de residuos electrónicos desde Rincón Hondo, Cesar.</p></section>
+<section id="quees"><h3>¿Qué es?</h3><p>Dear System es un sistema tecnológico para el reciclaje, recolección y reutilización de residuos electrónicos, fomentando una economía circular.</p></section>
+<section id="trl5"><h3>TRL5</h3><p>El nivel TRL5 significa que el prototipo ha sido validado en entorno relevante, garantizando viabilidad técnica y ambiental.</p></section>
+<section id="recoleccion"><h3>♻️ Recolección responsable</h3><p>Establecemos puntos ecológicos para disposición segura de RAEE, evitando contaminación y promoviendo responsabilidad ambiental.</p></section>
+<section id="reciclaje"><h3>🔄 Reciclaje y reutilización</h3><p>Reutilizamos componentes útiles, disminuyendo el uso de materias primas y reduciendo la huella ambiental.</p></section>
+<section id="educacion"><h3>🌿 Educación ambiental</h3><p>Ofrecemos talleres y campañas educativas sobre el manejo adecuado de residuos tecnológicos.</p></section>
+<section id="impacto"><h3>🌎 Impacto ambiental</h3><p>Medimos los beneficios ecológicos del proyecto, como reducción de CO₂ y conservación de energía.</p></section>
+<footer>Dear System · Rincón Hondo, Cesar © 2025</footer>
+</main>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const navButtons=document.querySelectorAll('.topbar button, .sidebar button');
+const sections=document.querySelectorAll('main section');
+navButtons.forEach(btn=>{
+btn.addEventListener('click',()=>{
+navButtons.forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+sections.forEach(s=>s.classList.remove('active'));
+const sec=document.getElementById(btn.dataset.section);
+if(sec){sec.classList.add('active');}
+if(btn.dataset.section==="mapa"){setTimeout(()=>map.invalidateSize(),200);}
+});});
+const map=L.map('map').setView([9.597,-73.292],15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+[{name:"Taller Dear System",lat:9.5968,lng:-73.2925},{name:"Plaza Principal",lat:9.5983,lng:-73.2911},{name:"Institución Educativa",lat:9.5955,lng:-73.2942}]
+.forEach(p=>L.marker([p.lat,p.lng]).addTo(map).bindPopup(p.name));
+const ctx=document.getElementById('statsChart');
+const chart=new Chart(ctx,{type:'bar',data:{labels:['Ene','Feb','Mar','Abr','May','Jun'],datasets:[{label:'Equipos recolectados',data:[80,95,110,124,130,150],backgroundColor:'#1b5e20'}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});
+let equiposCount=124;
+document.getElementById('registerBtn').addEventListener('click',()=>{
+equiposCount++;
+document.getElementById('equiposCount').textContent=equiposCount;
+chart.data.datasets[0].data.push(equiposCount);
+chart.data.labels.push('Nuevo');
+chart.update();
+alert('✅ Residuo registrado con éxito.');
+});
+</script>
+</body>
+</html>
